@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.mybatis20220923youri.repository.NewsRepository">
+
+
+<insert id="save" parameterType="com.boot.mybatis20220923youri.domain.News">
+    <!-- id가 인페의 메소드랑 일치. db에 insert해준다  -->
+    <!-- insert update는 무조건 int라서 따로 자료형 명시X  -->
+    insert into
+        news_mst
+    values (
+        0,
+        #{news_title},
+        #{news_writer},
+        #{news_broadcasting},
+        #{news_content},
+        now(),
+        now()
+    )
+
+</insert>
+</mapper>
