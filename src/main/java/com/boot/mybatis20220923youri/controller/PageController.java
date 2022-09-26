@@ -9,4 +9,9 @@ public class PageController {
     public String loadWriteNews(){
         return "news/write";
     }
+
+    @GetMapping("/auth/signup")
+    public String loadAuthSignup(){
+        return "auth/signup";
+    }
 }

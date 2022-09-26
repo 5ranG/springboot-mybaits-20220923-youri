@@ -5,20 +5,41 @@
 <mapper namespace="com.boot.mybatis20220923youri.repository.NewsRepository">
 
 
-<insert id="save" parameterType="com.boot.mybatis20220923youri.domain.News">
-    <!-- id가 인페의 메소드랑 일치. db에 insert해준다  -->
-    <!-- insert update는 무조건 int라서 따로 자료형 명시X  -->
-    insert into
-        news_mst
-    values (
-        0,
-        #{news_title},
-        #{news_writer},
-        #{news_broadcasting},
-        #{news_content},
-        now(),
-        now()
-    )
+    <insert id="save"
+            parameterType="com.boot.mybatis20220923youri.domain.News">
+        <!-- id가 인페의 메소드랑 일치. db에 insert해준다  -->
+        <!-- insert update는 무조건 int라서 따로 자료형 명시X  -->
+        insert into
+            news_mst
+        values (
+            0,
+            #{news_title},
+            #{news_writer},
+            #{news_broadcasting},
+            #{news_content},
+            now(),
+            now()
+        )
 
-</insert>
+    </insert>
+
+    <select
+            id="getNews"
+            resultType="com.boot.mybatis20220923youri.domain.News"
+    >
+        select
+            news_id,
+            news_title,
+            news_writer,
+            news_broadcasting,
+            news_content,
+            create_date,
+            update_date
+        from
+            news_mst
+        where
+            news_id = #{news_id}
+
+
+    </select>
 </mapper>

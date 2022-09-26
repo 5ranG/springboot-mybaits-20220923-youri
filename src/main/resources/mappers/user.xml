@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boot.mybatis20220923youri.repository.UserRepository">
+
+
+    <insert id="save"
+            parameterType="com.boot.mybatis20220923youri.domain.User"
+            useGeneratedKeys="true"
+            keyProperty="user_code"
+    >
+        <!-- impl의 override 메소드 역할을 해줍니다-->
+        <!-- useGeneratedKeys 자동으로 만들어진 key값을 쓰겠다-->
+        <!-- keyProperty 는 user_code에다가 쓰겟다-->
+        insert into
+        user_mst
+        values (
+        0,
+        #{user_id},
+        #{user_password},
+        #{user_name},
+        #{user_email}
+        )
+        <!--
+                insert into
+                    user_mst(user_id, user_password, user_name, user_email)
+                values (
+                    #{user_id},
+                    #{user_password},
+                    #{user_name},
+                    #{user_email}
+                )
+        -->
+    </insert>
+</mapper>

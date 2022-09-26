@@ -8,4 +8,5 @@ import org.apache.ibatis.annotations.Mapper;
 public interface NewsRepository {
     public int save(News news); // art+enter 
     // news.xml로 던져줬다.
+    public News getNews(int news_id);
 }
