@@ -6,7 +6,11 @@
 
 
     <insert id="save"
-            parameterType="com.boot.mybatis20220923youri.domain.News">
+            parameterType="com.boot.mybatis20220923youri.domain.News"
+            useGeneratedKeys="true"
+            keyProperty="news_id"
+    >
+        <!--      useGeneratedKeys   keyProperty 추가됨   -->
         <!-- id가 인페의 메소드랑 일치. db에 insert해준다  -->
         <!-- insert update는 무조건 int라서 따로 자료형 명시X  -->
         insert into
@@ -20,7 +24,6 @@
             now(),
             now()
         )
-
     </insert>
 
     <select
@@ -42,4 +45,24 @@
 
 
     </select>
+
+    <insert id="saveFiles"
+            parameterType="java.util.List"
+            useGeneratedKeys="true"
+            keyProperty="file_id"
+    >
+        insert into
+            news_file
+        values
+        <foreach item="newsFile" collection="newsFileList" separator=",">
+            (
+                0,
+                #{newsFile.news_id},
+                #{newsFile.file_origin_name},
+                #{newsFile.file_temp_name},
+                now(),
+                now()
+            )
+        </foreach>
+    </insert>
 </mapper>

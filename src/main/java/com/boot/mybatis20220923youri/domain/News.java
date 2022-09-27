@@ -1,6 +1,7 @@
 package com.boot.mybatis20220923youri.domain;
 
 import com.boot.mybatis20220923youri.dto.NewsReadRespDto;
+import com.boot.mybatis20220923youri.dto.NewsWriteRespDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import javax.swing.text.DateFormatter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -25,7 +27,7 @@ public class News {
     private LocalDateTime create_date;
     private LocalDateTime update_date;
 
-    public NewsReadRespDto toDto(){
+    public NewsReadRespDto toNewsReadRespDto(){
         return NewsReadRespDto.builder()
                 .id(news_id)
                 .title(news_title)
@@ -35,6 +37,17 @@ public class News {
                 .createDate(create_date)
                 .updateDate(update_date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 //create_date 도 이렇게 사용가능
+                .build();
+    }
+
+    public NewsWriteRespDto toNewsWriteRespDto(List<NewsFile> newsFileList) {
+        return NewsWriteRespDto.builder()
+                .id(news_id)
+                .title(news_title)
+                .writer(news_writer)
+                .broadcastingName(news_broadcasting)
+                .content(news_content)
+                .newsFileList(newsFileList)
                 .build();
     }
 }

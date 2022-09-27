@@ -14,9 +14,9 @@ public class NewsWriteReqDto {
     private String content;
     private List<MultipartFile> files;
 
-    public News toEntity(String writer){ //News객체를 return해줌
-        return News.builder() //뉴스 객체 생성 선언
-                .news_title(title) //어떤 변수에 어떤 걸 넣을건지에 대한 setter
+    public News toEntity(String writer) {
+        return News.builder()
+                .news_title(title)
                 .news_writer(writer)
                 .news_broadcasting(broadcastingName)
                 .news_content(content)
