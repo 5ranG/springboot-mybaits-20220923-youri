@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -67,12 +66,12 @@ public class NewsController {
                 //log.info("파일 업로드 경로: {}", uploadPath.toString());
 
                 File f = new File(filePath + "news");
-                if(!f.exists()){ // 저 경로(폴더)가 없을때
+                if(!f.exists()) { // 저 경로(폴더)가 없을때
                     f.mkdirs(); //모든 경로를 다 만들어줌...
                 }
 
                 try {
-                    Files.write(uploadPath, file.getBytes());
+                    Files.write(uploadPath, file.getBytes()); //transferTo 사용가능
                 } catch (IOException e) { //파일이 있을수도있고, 없을수도 있어서 예외
                     throw new RuntimeException(e);
                 }
@@ -115,9 +114,12 @@ public class NewsController {
     @GetMapping("/news/{newsId}")
     public ResponseEntity<?> read(@PathVariable int newsId) {
         log.info("{}", newsId);
+
         News news = newsRepository.getNews(newsId);
+            
+        log.info("{}", news);
+
         NewsReadRespDto newsReadRespDto = news.toNewsReadRespDto();
         return ResponseEntity.ok(new CMRespDto<>(1, "게시글 불러오기 성공", newsReadRespDto));
     }
-
 }
