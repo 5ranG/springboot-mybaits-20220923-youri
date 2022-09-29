@@ -106,7 +106,6 @@ public class NewsController {
             }
         }
 
-
         NewsWriteRespDto newsWriteRespDto = news.toNewsWriteRespDto(newsFileList);
         return ResponseEntity.ok(new CMRespDto<>(1, "새 글 작성 완료", newsWriteRespDto));
     }

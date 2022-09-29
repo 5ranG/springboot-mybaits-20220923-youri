@@ -14,6 +14,7 @@ public class NewsWriteReqDto {
     private String content;
     private List<MultipartFile> files;
 
+    //DTO > Entity
     public News toEntity(String writer) {
         return News.builder()
                 .news_title(title)
