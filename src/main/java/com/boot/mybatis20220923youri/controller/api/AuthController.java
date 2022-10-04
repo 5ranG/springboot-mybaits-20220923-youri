@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequestMapping("/api/auth")
 @RestController
-@RequiredArgsConstructor //생성자를 만들어줌. Noarg /allarg 없음.
+@RequiredArgsConstructor //생성자를 만들어줌. @NoArgsConstructor / @AllArgsConstructor 없음.
 // 매개변수가 무조건 필요하다고 달려있는 것. IoC에서 짝이 맞는 애를 찾아줌.
 // 그래서 @Autowired가 생략하고 [@RequiredArgsConstructor ]와 함께 private final UserRepository userRepository; 가 쓰였다.
 public class AuthController {
@@ -45,6 +45,7 @@ public class AuthController {
         log.info("마이바티스.xml 다녀온 후 Entity: {}", user);
 
         SignupRespDto signupRespDto = user.toDto();
+        log.info("signupRespDto: {}", signupRespDto);
 
         if(result == 0){
             return ResponseEntity.internalServerError().body(new CMRespDto<>(-1,"회원가입 실패",signupRespDto));
