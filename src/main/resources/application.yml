@@ -11,15 +11,16 @@ spring:
     username: admin
     password: 1q2w3e4r
 
-servlet:
-  multipart:
-    max-file-size: 100MB
-    max-request-size: 100MB
-
 mybatis:
   mapper-locations:
     - /mappers/*.xml
 
-file:
+servlet:
+  multipart: #파일 저장시 필요. 용량제한
+    max-file-size: 100MB
+    max-request-size: 100MB 
+    
+file: #파일 저장 경로 #@Value("${file.path}")로 사용한다.
   path: C:/Korea IT/web/springboot/springboot-mybatis-20220923-youri/upload/
+
 

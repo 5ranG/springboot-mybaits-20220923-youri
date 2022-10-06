@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class News {
+public class News { // db에서 가져온 자료
     private int news_id;
 
     private String news_title;
@@ -27,7 +27,7 @@ public class News {
     private LocalDateTime create_date;
     private LocalDateTime update_date;
 
-    public NewsReadRespDto toNewsReadRespDto(){
+    public NewsReadRespDto toNewsReadRespDto(){ //위의 자료를 바로 대입하여 객체생성
         return NewsReadRespDto.builder()
                 .id(news_id)
                 .title(news_title)
