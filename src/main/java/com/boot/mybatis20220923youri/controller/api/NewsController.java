@@ -30,99 +30,99 @@ import java.util.UUID;
 //@autowired는 하나하나 일일이 다 달아야 한다.
 public class NewsController {
 
-//@Value("파일 경로")
-@Value("${file.path}") //aplication.yml 경로가지고옴 @autowired같은 역할
-private String filePath;
+    //@Value("파일 경로")
+    @Value("${file.path}") //aplication.yml 경로가지고옴 @autowired같은 역할
+    private String filePath;
 
-    private final NewsRepository newsRepository; 
-    //@RequiredArgsConstructor를 필수로 달아야함
+        private final NewsRepository newsRepository;
+        //@RequiredArgsConstructor를 필수로 달아야함
 
 
-@PostMapping("/news")
-public ResponseEntity<?> write(NewsWriteReqDto newsWriteReqDto) {
-    log.info("{}", newsWriteReqDto);
+    @PostMapping("/news")
+    public ResponseEntity<?> write(NewsWriteReqDto newsWriteReqDto) {
+        log.info("{}", newsWriteReqDto);
 
-    List<NewsFile> newsFileList = null;
+        List<NewsFile> newsFileList = null;
 
-    MultipartFile firstFile = newsWriteReqDto.getFiles().get(0);
-    String firstFileName = firstFile.getOriginalFilename();
-    //스프링 기본파일 1개를 가지고 있다.
-    // log.info("fileName: {}", file.getOriginalFilename());
+        MultipartFile firstFile = newsWriteReqDto.getFiles().get(0);
+        String firstFileName = firstFile.getOriginalFilename();
+        //스프링 기본파일 1개를 가지고 있다.
+        // log.info("fileName: {}", file.getOriginalFilename());
 
-    log.info("파일저장 경로 >> {}", filePath);
-    log.info("firstFileName >> {}", firstFileName);
+        log.info("파일저장 경로 >> {}", filePath);
+        log.info("firstFileName >> {}", firstFileName);
 
-    if(!firstFileName.isBlank()) { // List<NewsFile> newsFileList = null; 이걸로 걸러짐
-        log.info("파일 입출력을 합니다.");
+        if(!firstFileName.isBlank()) { // List<NewsFile> newsFileList = null; 이걸로 걸러짐
+            log.info("파일 입출력을 합니다.");
 
-        newsFileList = new ArrayList<NewsFile>();
+            newsFileList = new ArrayList<NewsFile>();
 
-        for(MultipartFile file : newsWriteReqDto.getFiles()){
-            String originFileName = file.getOriginalFilename();
-            log.info("fileName: {}", file.getOriginalFilename());
-            //파일 이름들을 하나씩 출력한다.
-            String uuid = UUID.randomUUID().toString(); //파일명이 겹치면 안되므로 사용
-            String extension = originFileName.substring(originFileName.lastIndexOf(".")); //확장자명 가져오기
-            String tempFileName = uuid + extension;
+            for(MultipartFile file : newsWriteReqDto.getFiles()){
+                String originFileName = file.getOriginalFilename();
+                log.info("fileName: {}", file.getOriginalFilename());
+                //파일 이름들을 하나씩 출력한다.
+                String uuid = UUID.randomUUID().toString(); //파일명이 겹치면 안되므로 사용
+                String extension = originFileName.substring(originFileName.lastIndexOf(".")); //확장자명 가져오기
+                String tempFileName = uuid + extension;
 
-            Path uploadPath = Paths.get(filePath, "news/" + tempFileName);
-            //log.info("파일 업로드 경로: {}", uploadPath.toString());
+                Path uploadPath = Paths.get(filePath, "news/" + tempFileName);
+                //log.info("파일 업로드 경로: {}", uploadPath.toString());
 
-            File f = new File(filePath + "news");
-            if(!f.exists()) { // 저 경로(폴더)가 없을때
-                f.mkdirs(); //모든 경로를 다 만들어줌...
+                File f = new File(filePath + "news");
+                if(!f.exists()) { // 저 경로(폴더)가 없을때
+                    f.mkdirs(); //모든 경로를 다 만들어줌...
+                }
+
+                try {
+                    Files.write(uploadPath, file.getBytes()); //transferTo 사용가능
+                } catch (IOException e) { //파일이 있을수도있고, 없을수도 있어서 예외
+                    throw new RuntimeException(e);
+                }
+
+                NewsFile newsFile = NewsFile.builder()
+                        .file_origin_name(originFileName)
+                        .file_temp_name(tempFileName)
+                        .build();
+
+                newsFileList.add(newsFile);
             }
+        }
 
-            try {
-                Files.write(uploadPath, file.getBytes()); //transferTo 사용가능
-            } catch (IOException e) { //파일이 있을수도있고, 없을수도 있어서 예외
-                throw new RuntimeException(e);
+        News news = newsWriteReqDto.toEntity("김준일");//toEntity()메소드에서 객체 이미 만들어둠
+        //newsWriteReqDto를 바로 toEntity로 만든 후 news에 대입
+        int result = newsRepository.save(news);
+        // namespace로 잡아뒀으므로 impl역할을 하는 .xml의 save메소드가 호출된다.
+
+        if(result == 0) {
+            return ResponseEntity.internalServerError()
+                    .body(new CMRespDto<>(-1, "새 글 작성 실패", news));
+        }
+
+        if(newsFileList != null) {
+            for(NewsFile newsFile : newsFileList) {
+                newsFile.setNews_id(news.getNews_id());
+                log.info("NewsFile 객체: {}", newsFile);
             }
+            result = newsRepository.saveFiles(newsFileList);
 
-            NewsFile newsFile = NewsFile.builder()
-                    .file_origin_name(originFileName)
-                    .file_temp_name(tempFileName)
-                    .build();
-
-            newsFileList.add(newsFile);
+            if(result != newsFileList.size()) {
+                return ResponseEntity.internalServerError().body(new CMRespDto<>(-1, "파일 업로드 실패", newsFileList));
+            }
         }
+
+        NewsWriteRespDto newsWriteRespDto = news.toNewsWriteRespDto(newsFileList);
+        return ResponseEntity.ok(new CMRespDto<>(1, "새 글 작성 완료", newsWriteRespDto));
     }
 
-    News news = newsWriteReqDto.toEntity("김준일");//toEntity()메소드에서 객체 이미 만들어둠
-    //newsWriteReqDto를 바로 toEntity로 만든 후 news에 대입
-    int result = newsRepository.save(news);
-    // namespace로 잡아뒀으므로 impl역할을 하는 .xml의 save메소드가 호출된다.
+    @GetMapping("/news/{newsId}")
+    public ResponseEntity<?> read(@PathVariable int newsId) { //@PathVariable는 newsId 때문에 사용됨
+        log.info("{}", newsId);
 
-    if(result == 0) {
-        return ResponseEntity.internalServerError()
-                .body(new CMRespDto<>(-1, "새 글 작성 실패", news));
+        News news = newsRepository.getNews(newsId);
+
+        log.info("{}", news);
+
+        NewsReadRespDto newsReadRespDto = news.toNewsReadRespDto();
+        return ResponseEntity.ok(new CMRespDto<>(1, "게시글 불러오기 성공", newsReadRespDto));
     }
-
-    if(newsFileList != null) {
-        for(NewsFile newsFile : newsFileList) {
-            newsFile.setNews_id(news.getNews_id());
-            log.info("NewsFile 객체: {}", newsFile);
-        }
-        result = newsRepository.saveFiles(newsFileList);
-
-        if(result != newsFileList.size()) {
-            return ResponseEntity.internalServerError().body(new CMRespDto<>(-1, "파일 업로드 실패", newsFileList));
-        }
-    }
-
-    NewsWriteRespDto newsWriteRespDto = news.toNewsWriteRespDto(newsFileList);
-    return ResponseEntity.ok(new CMRespDto<>(1, "새 글 작성 완료", newsWriteRespDto));
-}
-
-@GetMapping("/news/{newsId}")
-public ResponseEntity<?> read(@PathVariable int newsId) {
-    log.info("{}", newsId);
-
-    News news = newsRepository.getNews(newsId);
-
-    log.info("{}", news);
-
-    NewsReadRespDto newsReadRespDto = news.toNewsReadRespDto();
-    return ResponseEntity.ok(new CMRespDto<>(1, "게시글 불러오기 성공", newsReadRespDto));
-}
 }
